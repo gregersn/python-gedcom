@@ -31,6 +31,7 @@ import re as regex
 from gedcom.element.element import Element
 from gedcom.helpers import deprecated
 import gedcom.tags
+from typing import List
 
 
 class NotAnActualIndividualError(Exception):
@@ -63,6 +64,48 @@ class IndividualElement(Element):
                 found_child = True
 
         return found_child
+    
+
+    def get_parents(self) -> List[str]:
+        """Get list of families this element is a child of
+        :rtype: list
+        """
+        found_parents = []
+
+        for child in self.get_child_elements():
+            if child.get_tag() == gedcom.tags.GEDCOM_TAG_FAMILY_CHILD:
+                found_parents.append(child.get_value())
+
+        return found_parents
+    
+    
+    def is_spouse(self) -> bool:
+        """Checks if this element is part of a family as a spouse
+        :rtype: bool
+        """
+        found_family = False
+
+        for child in self.get_child_elements():
+            if child.get_tag() == gedcom.tags.GEDCOM_TAG_FAMILY_SPOUSE:
+                found_family = True
+
+        return found_family
+    
+
+    def get_families(self) -> List[str]:
+        """Get list of families this individual is a spouse in
+        :rtype: list
+        """
+        found_families = []
+
+        for child in self.get_child_elements():
+            if child.get_tag() == gedcom.tags.GEDCOM_TAG_FAMILY_SPOUSE:
+                found_families.append(child.get_value())
+
+        return found_families
+    
+
+
 
     def is_private(self):
         """Checks if this individual is marked private
